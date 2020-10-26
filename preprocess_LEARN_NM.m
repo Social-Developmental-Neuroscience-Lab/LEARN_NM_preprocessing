@@ -5,9 +5,15 @@ clear all
 
 addpath('/usr/bin/spm12', '-end');
 savepath;
-root_folder=('/data/projects/STUDIES/LEARN/fMRI/RawImagingData/888/');
+root_folder=('/data/projects/STUDIES/nm-practice/LEARN/data/');
 
+%the following path should eventually be moved to '../STUDIES/LEARN/fMRI/'
 addpath('/data/projects/STUDIES/nm-practice/LEARN/scripts/')
+%when that dir is correctly located in the LEARN dir, there should be a
+%sub-dir in LEARN called data, with sub-dirs named for the sub ID for each
+%sub containing the T1w and the NM file. Then, to run preproc, the sub ID
+%just needs to be appended to LEARNSubs.mat (and the workplace overwritten
+%to include the new addition)
 load LEARNSubs.mat; 
 Subs = LEARNSubs;
 
@@ -17,7 +23,7 @@ TPMdir = '/usr/bin/spm12/tpm/TPM.nii';
 addpath('/usr/bin/spm12', '-end');
 savepath;
 hasT2 = 0;
-root_folder=('/data/projects/STUDIES/LEARN/fMRI/RawImagingData/888/');
+root_folder=('/data/projects/STUDIES/nm-practice/LEARN/data/');
 %
 
 
@@ -25,31 +31,31 @@ coreg=1; %%step 1 of preprocessing
 segment_dartel_normalize=1; %%step 3 of preprocessing
 %for this step, make sure the TPMdir above is directing to SPM folder on your computer
 make_avg_image1=1;  %step 5 of preprocessing. this will save 'avg_spatially_normalized.nii' in image of all participants' brains averaged in the root folder
-intensity_norm=0; %step SN7 of preprocessing. this will generate CNR images (psc_wr prefix) by intensity normalization relative to the reference region
-make_avg_image2=0; % step SN8 of preprocessing. this will save 'avg_CNR_image.nii' in image of all participants' brains with CNR values averaged in the root folder
-make_top_slice=0; % step SN10 of preprocessing. this will tell for each subject if any data is missing in dorsal SN and at what slice the scan is cut off.
+intensity_norm=1; %step SN7 of preprocessing. this will generate CNR images (psc_wr prefix) by intensity normalization relative to the reference region
+make_avg_image2=1; % step SN8 of preprocessing. this will save 'avg_CNR_image.nii' in image of all participants' brains with CNR values averaged in the root folder
+make_top_slice=1; % step SN10 of preprocessing. this will tell for each subject if any data is missing in dorsal SN and at what slice the scan is cut off.
 %the make_top_slice step saves something called top_slice that will be needed  for the voxelwise analysis script
-smooth=0; %step SN11 of preprocessing. this will apply smoothing and create the fully preprocessed NM image (prefix s1_psc_wr), ready for voxelwise analysis with voxelwise analysis script
+smooth=1; %step SN11 of preprocessing. this will apply smoothing and create the fully preprocessed NM image (prefix s1_psc_wr), ready for voxelwise analysis with voxelwise analysis script
 %%%%%%%make_divided_oi_LC_mask=0; %step LC7 of preprocessing. This will divide the manually-drawn over-inclusive LC mask into rostro-caudal segments
 %inv_normalize=0; %step LC8. This will bring the LC overinclusive mask from MNI space to native space
 %the inv_normalize step loads the normalization template, this must be the same template that was used in the segment_dartel_normalize step. it will look in the templatedir be sure this template is there.
 %inv_register=0; %step LC9. This will reslice the LC overinclusive mask to the dimensions of native space
 
 for s = 1:length(Subs)
-    NMscanname = dir([root_folder '4*']); %this line will need to be customized to find your file <- isn't this what root_folder is doing?
-    T1scanname = dir([root_folder '3*']); %this line will need to be customized to find your file
+    NMscanname = dir([root_folder 's' num2str(Subs(s)) '/s' num2str(Subs(s)) '*NM']); %this line will need to be customized to find your file
+    T1scanname = dir([root_folder 's' num2str(Subs(s)) '/s' num2str(Subs(s)) '*T1w']); %this line will need to be customized to find your file
     if hasT2==1
         T2scanname = dir([root_folder  num2str(Subs(s)) '\T2*.nii']); %this line will need to be customized to find your file
         T2scanfiles{s,1} = [root_folder  num2str(Subs(s)) '\' T2scanname.name];
         rT2scanfiles{s,1} = [root_folder  num2str(Subs(s)) '\r' T2scanname.name];
     end
-    NMscanfiles{s,1} = [root_folder '4*/' NMscanname.name];
-    T1scanfiles{s,1} = [root_folder '3*/' T1scanname.name];
-    rNMscanfiles{s,1} = [root_folder '4*/rs' NMscanname(1,1).name];
-    wrNMscanfiles{s,1} = [root_folder '4*/wr' NMscanname(1,1).name]; 
-    psc_wrNMscanfiles{s,1} = [root_folder '4*/psc_wr' NMscanname.name];
-    s1_psc_wrNMscanfiles{s,1} = [root_folder '4*/s1_psc_wr' NMscanname.name];
-    wT1scanfiles{s,1} = [root_folder '4*/w' T1scanname(1,1).name];
+    NMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/' NMscanname.name];
+    T1scanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/' T1scanname.name];
+    rNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/rs' NMscanname(1,1).name];
+    wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/wr' NMscanname(1,1).name]; 
+    psc_wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/psc_wr' NMscanname.name];
+    s1_psc_wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/s1_psc_wr' NMscanname.name];
+    wT1scanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/w' T1scanname(1,1).name];
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%coreg coregistration step%%%%%%%%%%%%%%%%%%%%
