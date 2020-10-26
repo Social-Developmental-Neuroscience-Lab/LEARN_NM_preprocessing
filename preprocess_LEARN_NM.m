@@ -25,11 +25,11 @@ coreg=1; %%step 1 of preprocessing
 segment_dartel_normalize=1; %%step 3 of preprocessing
 %for this step, make sure the TPMdir above is directing to SPM folder on your computer
 make_avg_image1=1;  %step 5 of preprocessing. this will save 'avg_spatially_normalized.nii' in image of all participants' brains averaged in the root folder
-intensity_norm=1; %step SN7 of preprocessing. this will generate CNR images (psc_wr prefix) by intensity normalization relative to the reference region
-make_avg_image2=1; % step SN8 of preprocessing. this will save 'avg_CNR_image.nii' in image of all participants' brains with CNR values averaged in the root folder
-make_top_slice=1; % step SN10 of preprocessing. this will tell for each subject if any data is missing in dorsal SN and at what slice the scan is cut off.
+intensity_norm=0; %step SN7 of preprocessing. this will generate CNR images (psc_wr prefix) by intensity normalization relative to the reference region
+make_avg_image2=0; % step SN8 of preprocessing. this will save 'avg_CNR_image.nii' in image of all participants' brains with CNR values averaged in the root folder
+make_top_slice=0; % step SN10 of preprocessing. this will tell for each subject if any data is missing in dorsal SN and at what slice the scan is cut off.
 %the make_top_slice step saves something called top_slice that will be needed  for the voxelwise analysis script
-smooth=1; %step SN11 of preprocessing. this will apply smoothing and create the fully preprocessed NM image (prefix s1_psc_wr), ready for voxelwise analysis with voxelwise analysis script
+smooth=0; %step SN11 of preprocessing. this will apply smoothing and create the fully preprocessed NM image (prefix s1_psc_wr), ready for voxelwise analysis with voxelwise analysis script
 %%%%%%%make_divided_oi_LC_mask=0; %step LC7 of preprocessing. This will divide the manually-drawn over-inclusive LC mask into rostro-caudal segments
 %inv_normalize=0; %step LC8. This will bring the LC overinclusive mask from MNI space to native space
 %the inv_normalize step loads the normalization template, this must be the same template that was used in the segment_dartel_normalize step. it will look in the templatedir be sure this template is there.
