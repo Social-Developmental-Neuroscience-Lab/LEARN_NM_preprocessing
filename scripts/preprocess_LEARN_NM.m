@@ -1,31 +1,26 @@
-%Preprocessing script for neuromelanin-sensitive MRI data. Written by Clifford Cassidy, April 2020
-%Updated for LEARN Study, October 2020
+%Preprocesvsinvg script for neuromelanin-sensitive MRI data. Written by Clifford Cassidy, April 2020
 
-clear all 
+clear all
 
-addpath('/usr/bin/spm12', '-end');
+% addpath('/usr/bin/spm12', '-end');
+addpath('/data/spm12', '-end');
 savepath;
-root_folder=('/data/projects/STUDIES/LEARN/fMRI/NM/data/');
+root_folder = ('/data/projects/STUDIES/LEARN/fMRI/NM/data/');
 
-addpath('/data/projects/STUDIES/LEARN/fMRI/NM/scripts/');
-
-load LEARNSubs.mat; 
-Subs = LEARNSubs;
+%Subs = [1165, 900, 1144, 1264.5, 1264, 1178, 1290.5, 1290, 1215, 1196];
+Subs = [1028];
 
 existing_template=1;
 templatedir= '/data/projects/STUDIES/LEARN/fMRI/NM/templates/';
-TPMdir = '/usr/bin/spm12/tpm/TPM.nii';
-addpath('/usr/bin/spm12', '-end');
-savepath;
+TPMdir = '/data/spm12/tpm/TPM.nii';
 hasT2 = 0;
-root_folder=('/data/projects/STUDIES/LEARN/fMRI/NM/data/');
-%
+root_folder = ('/data/projects/STUDIES/LEARN/fMRI/NM/data/');
 
 
-coreg=1; %%step 1 of preprocessing
+coreg=0; %%step 1 of preprocessing
 segment_dartel_normalize=1; %%step 3 of preprocessing
 %for this step, make sure the TPMdir above is directing to SPM folder on your computer
-make_avg_image1=1;  %step 5 of preprocessing. this will save 'avg_spatially_normalized.nii' in image of all participants' brains averaged in the root folder
+make_avg_image1=0;  %step 5 of preprocessing. this will save 'avg_spatially_normalized.nii' in image of all participants' brains averaged in the root folder
 intensity_norm=0; %step SN7 of preprocessing. this will generate CNR images (psc_wr prefix) by intensity normalization relative to the reference region
 make_avg_image2=0; % step SN8 of preprocessing. this will save 'avg_CNR_image.nii' in image of all participants' brains with CNR values averaged in the root folder
 make_top_slice=0; % step SN10 of preprocessing. this will tell for each subject if any data is missing in dorsal SN and at what slice the scan is cut off.
@@ -37,8 +32,8 @@ smooth=0; %step SN11 of preprocessing. this will apply smoothing and create the 
 %inv_register=0; %step LC9. This will reslice the LC overinclusive mask to the dimensions of native space
 
 for s = 1:length(Subs)
-    NMscanname = dir([root_folder 's' num2str(Subs(s)) '/*Neuromel*']); %this line will need to be customized to find your file
-    T1scanname = dir([root_folder 's' num2str(Subs(s)) '/*mpgSag*']); %this line will need to be customized to find your file
+    NMscanname = dir([root_folder 's' num2str(Subs(s)) '/s' num2str(Subs(s)) '*LEARN_NM.nii']); %this line will need to be customized to find your file
+    T1scanname = dir([root_folder 's' num2str(Subs(s)) '/s' num2str(Subs(s)) '*T1w*.nii']); %this line will need to be customized to find your file
     if hasT2==1
         T2scanname = dir([root_folder  num2str(Subs(s)) '\T2*.nii']); %this line will need to be customized to find your file
         T2scanfiles{s,1} = [root_folder  num2str(Subs(s)) '\' T2scanname.name];
@@ -46,8 +41,8 @@ for s = 1:length(Subs)
     end
     NMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/' NMscanname.name];
     T1scanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/' T1scanname.name];
-    rNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/rs' NMscanname(1,1).name];
-    wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/wr' NMscanname(1,1).name]; 
+    rNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/r' NMscanname(1,1).name]; %JW; changed '/rs' to just '/r'
+    wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/wr' NMscanname(1,1).name];
     psc_wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/psc_wr' NMscanname.name];
     s1_psc_wrNMscanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/s1_psc_wr' NMscanname.name];
     wT1scanfiles{s,1} = [root_folder 's' num2str(Subs(s)) '/w' T1scanname(1,1).name];
@@ -56,6 +51,23 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%coreg coregistration step%%%%%%%%%%%%%%%%%%%%
 for s = 1:length(Subs)
     
+    %coregbatch{1}.spm.spatial.coreg.estwrite.ref = {/data/projects/STUDIES/LEARN/fMRI/NM/{s,1}};
+
+    %coregbatch{1}.spm.spatial.coreg.estwrite.source = {/data/projects/STUDIES/LEARN/fMRI/NM/{s,1}};
+
+    
+%     coregbatch{1}.spm.spatial.coreg.estwrite.ref = {'/data/projects/STUDIES/LEARN/fMRI/NM/data/s888/s888_LEARN_T1w.nii'};
+%     coregbatch{1}.spm.spatial.coreg.estwrite.source = {'/data/projects/STUDIES/LEARN/fMRI/NM/data/s888/s888_LEARN_NM.nii'};
+%     coregbatch{1}.spm.spatial.coreg.estwrite.other = {''};
+%     coregbatch{1}.spm.spatial.coreg.estwrite.eoptions.cost_fun = 'nmi';
+%     coregbatch{1}.spm.spatial.coreg.estwrite.eoptions.sep = [4 2];
+%     coregbatch{1}.spm.spatial.coreg.estwrite.eoptions.tol = [0.02 0.02 0.02 0.001 0.001 0.001 0.01 0.01 0.01 0.001 0.001 0.001];
+%     coregbatch{1}.spm.spatial.coreg.estwrite.eoptions.fwhm = [7 7];
+%     coregbatch{1}.spm.spatial.coreg.estwrite.roptions.interp = 4;
+%     coregbatch{1}.spm.spatial.coreg.estwrite.roptions.wrap = [0 0 0];
+%     coregbatch{1}.spm.spatial.coreg.estwrite.roptions.mask = 0;
+%     coregbatch{1}.spm.spatial.coreg.estwrite.roptions.prefix = 'r';
+
     coregbatch{1}.spm.spatial.coreg.estwrite.ref = {T1scanfiles{s,1}};
     coregbatch{1}.spm.spatial.coreg.estwrite.source = {NMscanfiles{s,1}};
     coregbatch{1}.spm.spatial.coreg.estwrite.other = {''};
